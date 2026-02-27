@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>webxios – demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0f1117;
+      color: #e2e4e9;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* ---------- sidebar ---------- */
+    .sidebar {
+      width: 280px;
+      background: #161822;
+      border-right: 1px solid #2a2d3a;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .sidebar h2 {
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #8b8fa3;
+      margin-bottom: 4px;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #2a2d3a;
+      border-radius: 8px;
+      background: #1c1f2e;
+      color: #c9cbda;
+      font-size: 13px;
+      text-align: left;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .btn:hover { background: #262a3d; border-color: #454963; }
+    .btn .method {
+      display: inline-block;
+      width: 56px;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: .04em;
+    }
+    .btn .method.get    { color: #61afef; }
+    .btn .method.post   { color: #98c379; }
+    .btn .method.put    { color: #e5c07b; }
+    .btn .method.delete { color: #e06c75; }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    .status-dot.connected    { background: #98c379; }
+    .status-dot.disconnected { background: #e06c75; }
+
+    #connection-status {
+      font-size: 12px;
+      color: #8b8fa3;
+      margin-bottom: 8px;
+    }
+
+    /* ---------- custom-form ---------- */
+    .custom-form { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+    .custom-form select,
+    .custom-form input,
+    .custom-form textarea {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #2a2d3a;
+      background: #1c1f2e;
+      color: #e2e4e9;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .custom-form textarea { resize: vertical; min-height: 56px; font-family: 'Cascadia Code', monospace, monospace; font-size: 12px; }
+
+    /* ---------- main ---------- */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .toolbar {
+      padding: 12px 20px;
+      background: #161822;
+      border-bottom: 1px solid #2a2d3a;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toolbar button {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid #2a2d3a;
+      background: #1c1f2e;
+      color: #c9cbda;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .toolbar button:hover { background: #262a3d; }
+
+    #log {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .log-entry {
+      background: #161822;
+      border: 1px solid #2a2d3a;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-family: 'Cascadia Code', monospace, monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+    .log-entry .req-line { color: #61afef; font-weight: 700; }
+    .log-entry .status   { font-weight: 700; }
+    .log-entry .status.ok   { color: #98c379; }
+    .log-entry .status.err  { color: #e06c75; }
+    .log-entry .dim      { color: #5c5f72; }
+    .log-entry .body     { color: #d4d4d4; }
+  </style>
+</head>
+<body>
+
+<!-- ============ SIDEBAR ============ -->
+<div class="sidebar">
+  <div id="connection-status">
+    <span class="status-dot disconnected" id="dot"></span>disconnected
+  </div>
+
+  <h2>Quick requests</h2>
+
+  <button class="btn" onclick="fire('GET','/users?page=1')">
+    <span class="method get">GET</span> /users?page=1
+  </button>
+  <button class="btn" onclick="fire('GET','/users/1')">
+    <span class="method get">GET</span> /users/1
+  </button>
+  <button class="btn" onclick="fire('POST','/users',{name:'Alan Turing'})">
+    <span class="method post">POST</span> /users
+  </button>
+  <button class="btn" onclick="fire('PUT','/users/1',{name:'Ada L.'})">
+    <span class="method put">PUT</span> /users/1
+  </button>
+  <button class="btn" onclick="fire('DELETE','/users/2')">
+    <span class="method delete">DELETE</span> /users/2
+  </button>
+  <button class="btn" onclick="fire('GET','/nonexistent')">
+    <span class="method get">GET</span> /nonexistent (404)
+  </button>
+
+  <h2 style="margin-top:12px">Custom request</h2>
+  <div class="custom-form">
+    <select id="c-method">
+      <option>GET</option><option>POST</option><option>PUT</option>
+      <option>PATCH</option><option>DELETE</option><option>HEAD</option>
+    </select>
+    <input  id="c-url"  placeholder="/path?query=value" value="/users" />
+    <textarea id="c-body" placeholder='{"key":"value"}  (optional)'></textarea>
+    <button class="btn" onclick="fireCustom()" style="text-align:center;font-weight:600;">
+      Send
+    </button>
+  </div>
+</div>
+
+<!-- ============ MAIN ============ -->
+<div class="main">
+  <div class="toolbar">
+    <span style="font-weight:600;font-size:15px;">webxios</span>
+    <span style="color:#5c5f72;font-size:12px;">request log</span>
+    <span style="flex:1"></span>
+    <button onclick="document.getElementById('log').innerHTML=''">Clear</button>
+  </div>
+  <div id="log"></div>
+</div>
+
+<script src="/webxios.js"></script>
+<script>
+  // --- connect -------------------------------------------------------
+  const WS_URL = 'ws://' + location.hostname + ':4000/ws';
+  const api = webxios.create(WS_URL, { reconnect: true });
+
+  const dot    = document.getElementById('dot');
+  const status = document.getElementById('connection-status');
+
+  api.connect().then(() => setConnected(true)).catch(() => setConnected(false));
+
+  function setConnected(ok) {
+    dot.className = 'status-dot ' + (ok ? 'connected' : 'disconnected');
+    status.innerHTML = dot.outerHTML + (ok ? 'connected' : 'disconnected');
+  }
+
+  // --- fire a request ------------------------------------------------
+  async function fire(method, url, body) {
+    const t0 = performance.now();
+    let res, err;
+    try {
+      switch (method) {
+        case 'GET':    res = await api.get(url);           break;
+        case 'DELETE': res = await api.delete(url);        break;
+        case 'HEAD':   res = await api.head(url);          break;
+        case 'POST':   res = await api.post(url, body);    break;
+        case 'PUT':    res = await api.put(url, body);     break;
+        case 'PATCH':  res = await api.patch(url, body);   break;
+      }
+    } catch (e) {
+      err = e;
+      res = e.response;
+    }
+    const ms = (performance.now() - t0).toFixed(1);
+    appendLog(method, url, body, res, ms, err);
+  }
+
+  function fireCustom() {
+    const method = document.getElementById('c-method').value;
+    const url    = document.getElementById('c-url').value;
+    const raw    = document.getElementById('c-body').value.trim();
+    let body = undefined;
+    if (raw) { try { body = JSON.parse(raw); } catch { body = raw; } }
+    fire(method, url, body);
+  }
+
+  // --- log -----------------------------------------------------------
+  function appendLog(method, url, body, res, ms, err) {
+    const el = document.createElement('div');
+    el.className = 'log-entry';
+
+    const statusCode = res ? res.status : '—';
+    const ok = res && res.status < 400;
+
+    let html = '';
+    html += `<span class="req-line">${method} ${escHtml(url)}</span>\n`;
+
+    if (body !== undefined) {
+      html += `<span class="dim">body →</span> <span class="body">${escHtml(JSON.stringify(body))}</span>\n`;
+    }
+
+    html += `<span class="status ${ok ? 'ok' : 'err'}">${statusCode}</span>`;
+    html += `  <span class="dim">${ms} ms</span>\n`;
+
+    if (res && res.data !== undefined) {
+      html += `<span class="body">${escHtml(JSON.stringify(res.data, null, 2))}</span>`;
+    }
+    if (err && !res) {
+      html += `<span class="status err">${escHtml(err.message)}</span>`;
+    }
+
+    el.innerHTML = html;
+    document.getElementById('log').prepend(el);
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+</script>
+</body>
+</html>

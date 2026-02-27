@@ -1,0 +1,43 @@
+{
+  "name": "webxios",
+  "version": "0.1.0",
+  "description": "Drop-in axios replacement that sends HTTP-style requests over a single WebSocket connection",
+  "keywords": ["websocket", "axios", "http", "ws", "rest", "client", "fetch", "socket", "realtime"],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/user/webxios.git"
+  },
+  "homepage": "https://github.com/user/webxios#readme",
+  "bugs": {
+    "url": "https://github.com/user/webxios/issues"
+  },
+  "main": "src/index.js",
+  "browser": "browser.js",
+  "exports": {
+    ".": {
+      "node": "./src/index.js",
+      "browser": "./browser.js",
+      "default": "./src/index.js"
+    },
+    "./browser": "./browser.js",
+    "./server": "./src/server-handler.js"
+  },
+  "files": [
+    "src/index.js",
+    "src/browser.js",
+    "src/server-handler.js",
+    "browser.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "demo": "node demo/server.js",
+    "demo:client": "node demo/client.js",
+    "prepublishOnly": "echo 'Ready to publish'"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}
