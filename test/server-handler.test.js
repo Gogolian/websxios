@@ -158,15 +158,13 @@ describe('createRouter', () => {
 
   it('ignores invalid JSON messages', async () => {
     const router = createRouter();
-    const ws = mockWs();
-    router.attach(ws);
-    // Send raw non-JSON – should not throw or send a reply
+    // Use a mock that fails if send() is called
     const listeners = {};
-    const ws2 = {
+    const ws = {
       on(event, fn) { listeners[event] = fn; },
       send() { assert.fail('should not send'); },
     };
-    router.attach(ws2);
+    router.attach(ws);
     listeners.message('not json at all');
 
     await new Promise((r) => setTimeout(r, 10));
