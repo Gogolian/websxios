@@ -7,11 +7,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/user/webxios.git"
+    "url": "https://github.com/Gogolian/websxios.git"
   },
-  "homepage": "https://github.com/user/webxios#readme",
+  "homepage": "https://github.com/Gogolian/websxios#readme",
   "bugs": {
-    "url": "https://github.com/user/webxios/issues"
+    "url": "https://github.com/Gogolian/websxios/issues"
   },
   "main": "src/index.js",
   "browser": "browser.js",
